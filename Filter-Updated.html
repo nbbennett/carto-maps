@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Filter Updated</title>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+        <link rel="shortcut icon" href="https://cartodb.com/assets/favicon.ico" />
+        
+        <link rel="stylesheet" href="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+        <script src="https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"></script>
+        
+        
+        
+        <script>
+            jQuery(document).ready(function(){
+                                   
+                                   $(".goo-collapsible > li > a").on("click", function(e){
+                                                                     
+                                                                     if(!$(this).hasClass("active")) {
+                                                                     
+                                                                     // hide any open menus and remove all other classes
+                                                                     //$(".goo-collapsible li ul").slideUp(350);
+                                                                     //$(".goo-collapsible li a").removeClass("active");
+                                                                     
+                                                                     // open our new menu and add the open class
+                                                                     $(this).next("ul").slideDown(350);
+                                                                     $(this).addClass("active");
+                                                                     
+                                                                     }else if($(this).hasClass("active")) {
+                                                                     
+                                                                     $(this).removeClass("active");
+                                                                     $(this).next("ul").slideUp(350);
+                                                                     }
+                                                                     });
+                                   
+                                   });
+            </script>
+        
+        
+        
+        <style>
+            html, body, #map {
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+        
+        #dropDown {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+        }
+        
+        
+        /*remove list style (circles)*/
+        .goo-collapsible{
+            list-style: none;
+            font-family: 'HelveticaNeue', Arial, Helvetica, sans-serif;
+            font-size:16px}
+        /*header line style and border*/
+        .goo-collapsible li.header{
+            color: #666;
+            padding:4px 12px;
+            border: 1px solid #bbb;}
+        /*set border for every line of menu nad remove top border becouse we dont want double border with header border. */
+        .goo-collapsible li {
+            border: 1px solid #bbb;
+            border-top:0;
+            margin: 0;
+            background:#F0F0F0;}
+        /*remove decoration from text links and treat it as a block.*/
+        .goo-collapsible li a {
+            text-decoration:none;
+            color:#666;
+            padding:8px 12px;
+            padding-right: 50px;
+            display:inline-block;
+        }
+        /*we dont want text to be underline as regular link*/
+        .goo-collapsible li a:hover {
+            background: #F8F8F8;
+            display:inline-block;
+            text-decoration:none;}
+        
+        /*remove list style (circles) for submenu*/
+        .goo-collapsible li ul {
+            list-style: none;
+            font-size: 12px;
+            background: #d3d3d3;
+            display: none;
+            margin:0;
+            padding:0;}
+        /*remove border and set only bottom border for submenu*/
+        .goo-collapsible li ul li {
+            margin:0;
+            border:0;
+            border-bottom:1px solid #bbb;}
+        /*remove bottom border from last element in submenu*/
+        .goo-collapsible li ul li:last-child {
+            border-bottom:0;}
+        /*set padding for submenu to be inline with maimenu*/
+        .goo-collapsible li ul li a {
+            font-size:12px
+            padding: 5px 10px;
+            display: block;
+            padding-left: 30px;
+            display: inline-block;
+            background: #d3d3d3; }
+        /*remove text decoration for links*/
+        .goo-collapsible li ul li a:hover {
+            text-decoration: none;
+            background: #d3d3d3; }
+        
+        /*for menu witch have a submenu display some icom*/
+        .goo-collapsible .dropdown > a {
+            background: url("https://image.flaticon.com/icons/png/512/60/60995.png") no-repeat;
+            background-size: 20px 20px;
+            background-position: 190px 5px;
+            /* fix arrow */
+        }
+        /*set some hover color on drop down menu*/
+        .goo-collapsible .dropdown > a:hover { background: #F8F8F8 url("https://image.flaticon.com/icons/png/512/60/60995.png") no-repeat right center;
+            background-size: 20px 20px;
+            background-position: 190px 5px;
+        }
+        
+        .goo-collapsible li form {
+            display:inline-block;
+        }
+        
+        
+        .goo-collapsible li ul li form {
+            position: relative; /*may cause problems down the road*/
+            top: 10px;
+            display:block;
+            padding-left: 30px;
+            
+        }
+        .goo-collapsible li ul li form span{
+            position: relative; /* may cause problems down the road*/
+            left: 50px;
+            bottom: 20px;
+            font-size: 14px;
+            font-family: 'HelveticaNeue', Arial, Helvetica, sans-serif;
+            
+        }
+        </style>
+        
+    </head>
+    <body>
+        
+        <!-- map div -->
+        <div id="map"></div>
+        
+        
+        <!-- legend div -->
+        <div class='cartodb-legend category'>
+            <div class="legend-title" style="color:#284a59;font-size:20px">Research Theme</div>
+            <ul>
+                <li><div class="bullet" style="background-color:#e70101"></div>Carbon Sequestration</li>
+                <li><div class="bullet" style="background-color:#1D6996"></div>Basic Science</li>
+                <li><div class="bullet" style="background-color:#38A6A5"></div>Soil Health and Carbon</li>
+                <li><div class="bullet" style="background-color:#0F8554"></div>Geothermal Systems</li>
+                <li><div class="bullet" style="background-color:#73AF48"></div>Atmospheric Science</li>
+            </ul>
+        </div>
+        
+        
+        
+        
+        <!-- Drop Down Menu
+         NOTE: In an ideal world there should be a function to automatically generate this menu
+         NOTE: form id: Gibberish
+         input id: project or category name
+         onchange: function call
+         NOTE: When adding projects, also add them to dictionary in script below--->
+        <div id="dropDown">
+            <ul class="goo-collapsible">
+                <li class="header">RESEARCH THEMES</li>
+                <li class="dropdown" data-type="category" data-attribute="Carbon Sequestration"> <!-- data-type tells type while data-attribute tells what the actual data is --->
+                    <form id="Carbon"><input type="checkbox" name="checkfield" id="Carbon Sequestration" onchange="categorySelect(this)"/></form>
+                    <a class="" href="#"> Carbon Sequestration</a>
+                    <ul>
+                        <li>
+                            <form id="NGEET"><input type="checkbox" name="checkfield" id="NGEE Tropics" onchange="projectSelect(this)"/><img src="https://image.ibb.co/nzheKa/lbl_logo.png" alt="Site Image" style="width:20px;height 20px;"> <br><span>NGEE Tropics</span></form>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <form id="Basic"><input type="checkbox" name="checkfield" id="Basic Science" onchange="categorySelect(this)"/></form>
+                    <a class="" href="#"> Basic Science&emsp;&emsp;&emsp;&ensp;</a> <!-- Cheesing it a lil --->
+                    <ul>
+                        <li>
+                            <form id="NGEEA"><input type="checkbox" name="checkfield" id="NGEE Arctic" onchange="projectSelect(this)"/><img src="https://image.ibb.co/nzheKa/lbl_logo.png" alt="Site Image" style="width:20px;height 20px;"> <br><span>NGEE Arctic</span></form>
+                        </li>
+                        <li>
+                            <form id="NGEEB"><input type="checkbox" name="checkfield" id="NGEE Arctic Test" onchange="projectSelect(this)"/><img src="https://image.ibb.co/nzheKa/lbl_logo.png" alt="Site Image" style="width:20px;height 20px;"> <br><span>NGEE Arctic Test</span></form>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <form id="SHC"><input type="checkbox" name="checkfield" id="Soil Health and Carbon" onchange="categorySelect(this)"/></form>
+                    <a class="" href="#"> Soil Health and Carbon</a>
+                    <ul>
+                        <li>
+                            <form id="TERI"><input type="checkbox" name="checkfield" id="Tomographic Electrical Rhizosphere Imaging (TERI)" onchange="projectSelect(this)"/><img src="https://image.ibb.co/nzheKa/lbl_logo.png" alt="Site Image" style="width:20px;height 20px;"> <br><span>TERI</span></form>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <form id="GeothermSys"><input type="checkbox" name="checkfield" id="Geothermal Systems" onchange="categorySelect(this)"/></form>
+                    <a class="" href="#"> Geothermal Systems</a>
+                    <ul>
+                        <li>
+                            <form id="SERDP"><input type="checkbox" name="checkfield" id="SERDP Permafrost Thaw Experiment" onchange="projectSelect(this)"/><img src="https://image.ibb.co/nzheKa/lbl_logo.png" alt="Site Image" style="width:20px;height 20px;"> <br><span>SERDP Permafrost Thaw Experiment</span></form>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <form id="AtmSci"><input type="checkbox" name="checkfield" id="Atmospheric Science" onchange="categorySelect(this)"/></form>
+                    <a class="" href="#"> Atmospheric Science</a>
+                    <ul>
+                        <li>
+                            <form id="ARM"><input type="checkbox" name="checkfield" id="Atmospheric Radiation Measurement (ARM)" onchange="projectSelect(this)"/><img src="https://lh3.googleusercontent.com/stH2idhRsEi7oCWKNL2ZYpDogPbtSSMA7QYfPw8zW3r_Vw_eNx3_-VeC2kJiiH-JtHCS2fjD_KcAmayGGDfrCI0qtbZTHBHev7N1L0OhAGAVq9pIXsS3QaBm2i4OyEKPM38huYC6It0Slrkt8D9nf3URZ4sh1I6AktCyDlMQO6FEVouqkNI_yi_Q7ZeKt-HRkbrEjaAKGAVtHLHujZl2NlngDNePm8iG0pTbi0mI_y1W4tTyphmFa8MOTjR_cAdQWF-790NW7m79o1UYEDkdcfm44oOtLGxmbSAjpzhMQJMqlvcdjuf0rPvAjV7LN4e4YqK0syv-evSK8ccoUQhLIBe9Dr9x25i8zBZXcQo7F0h5w5GUXSp9QkCGRJEvPUFhvOLIilTUWN00HPd29E9ayaiWdijoaWQhY_eQ47g7cJ3l9PJ_ALqIXfr_JuG4j2rG7sFVvLCpr1-sWxZnbjQI6Bkbp1L-P6iWR5gGDGdea9oIiYBiTCFyeQ2XmDYHdz1x_drWEoMrKT51yhmroNvTjN588D3dg2Via0PzKaQwu7ptBjg9sadTTFmwltFLTihMueq-Gb-Umwq4a7HamWtQOhVTkLcl57Z_iGEiscA-WGJHozozDAdvWYQ=w417-h391-no" alt="Site Image" style="width:25px;height 25px;"> <br><span>Atmospheric Radiation Measurement (ARM)</span></form>
+                            <!-- <a href="#">Atmospheric Radiation Measurement (ARM)</a> -->
+                        </li>
+                        <li>
+                            <form id="AFlux"><input type="checkbox" name="checkfield" id="AmeriFlux Management Project" onchange="projectSelect(this)"/> <img src="https://lh3.googleusercontent.com/ya6Dm_Ro-zRaFCE-aYX67MXuKl43ijWMzQ6RGbMpD1HYyiJ40kzsluxaOGPyL0ZuEF99nu57h41l4m5Pa07KUk2Mytsti71Q6IOcfwu5pHp_3SvBE1a6k4Y2cysIG9eyEOI6kVfX6aITYsGp8hAIdf-jDuWfpum_ynbijr-e_v55cj-G_yWgh8aRbsbBcpf7BLhwL2qPo9NJU-ljO_Lqw7ZHWf55_ke5yliXVKUbqUIRqogYrf4GSUw4TKdAaY9LY2ncE2LyxsmUcObDyLjGFOsPRPnhhFlW4YWKDCQ8G22RubISulQBmyanlO8jrWlwcHuxqA2khOr8MLzdYHIkKehuTq53gJ3S4gxYqalFiPt59fi-qPjN1Yr_0jsPBnymlBnB4aUr3LK-8C20G8kfDCJ4DUcWuC255vQzHI17z28_UksiFQONsEkbWLWHP-OGH9sEtU7U6qc8hjF6ZRQDwkSpJLJWb0BOq5Q28jTwnqONeIjEw9sbnWWVZSQIeyeeoAilwWYnF6Ld5w6biDYcX0hOc6HY58292fEzjzNFpaQi8DgJEnYCJKJgPTXVKzBqBPOfMETf6t98w93Az3kFAl-oJrCErwBmHE-rvAa9kgYaLZGimw01788=s389-no" alt="Site Image" style="width:25px;height 25px;"> <br><span>Ameriflux</span></form>
+                            <!-- <a href="#">AmeriFlux</a> --->
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+            </ul>
+        </div>
+        <!-- try making the internal stuff one long form --->
+        
+        
+        <script type="text/cartocss" id="style">
+            #fullprojectsitedata_6_26_17 {
+                marker-width: ramp([type], (13, 23), ("Collaborator", "Field Site"), "=");
+                marker-fill: ramp([category], (#e70101, #1D6996, #38A6A5, #0F8554, #73AF48, #EDAD08), ("Carbon Sequestration", "Basic Science", "Soil Health & Carbon", "Geothermal Systems", "Atmospheric Science", "Climate Modeling"), "=");
+                marker-fill-opacity: 1;
+                marker-allow-overlap: true;
+                marker-line-width: 1;
+                marker-line-color: #FFF;
+                marker-line-opacity: 1;
+            }
+        </script>
+        
+        
+        
+        <script>
+            
+            //Big No No (Global Var)
+            var query = "SELECT * FROM fullprojectsitedata_6_26_17 WHERE lat > 90"; //lat should never be greater than 90
+            var dict = { //connects all projects to their category
+                "NGEE Tropics": "Carbon Sequestration",
+                "NGEE Arctic": "Basic Science",
+                "NGEE Arctic Test": "Basic Science",
+                "Tomographic Electrical Rhizosphere Imaging (TERI)": "Soil Health and Carbon",
+                "SERDP Permafrost Thaw Experiment": "Geothermal Systems",
+                "Atmospheric Radiation Measurement (ARM)": "Atmospheric Science",
+                "AmeriFlux Management Project": "Atmospheric Science"
+            };
+        
+        
+        // Handles Category Clicks
+        function categorySelect(checkboxElm) {
+            var category = checkboxElm.id;
+            if (checkboxElm.checked) { //when checked
+                query = query + " OR category = '" + category +"'";
+                
+                //check all boxes in category
+                for(var dictProject in dict){
+                    var dictCategory = dict[dictProject];
+                    if (dictCategory == category){
+                        query = query.replace((" OR project_name = '" + dictProject + "'"), ''); //to prevent duplicates
+                        query = query + " OR project_name = '" + dictProject +"'";
+                        document.getElementById(dictProject).checked = true;// checks it
+                    }
+                }
+                console.log(query);
+                
+            } else { //when unchecked
+                query = query.replace((" OR category = '" + category + "'"), '');
+                
+                //uncheck all boxes in the category
+                for(var dictProject in dict){
+                    var dictCategory = dict[dictProject];
+                    if (dictCategory == category){
+                        query = query.replace((" OR project_name = '" + dictProject + "'"), '');
+                        document.getElementById(dictProject).checked = false;// checks it
+                    }
+                }
+                console.log(query);
+            }
+        }
+        
+        
+        
+        
+        
+        // Handles Project Clicks
+        function projectSelect(checkboxElm) {
+            var project = checkboxElm.id;
+            if (checkboxElm.checked) { //when checked
+                query = query + " OR project_name = '" + project +"'";
+                console.log(query);
+            } else { //when unchecked
+                query = query.replace((" OR project_name = '" + project + "'"), '');
+                query = query.replace((" OR category = '" + dict[project] + "'"), '');
+                document.getElementById(dict[project]).checked = false;// Unchecks it
+                console.log(query);
+            }
+        }
+        
+        
+        
+        
+        function main() {
+            // get selector
+            
+            var selector = $(".js-category-selector");
+            // get styles & query
+            style = $("#style").text(),
+            //query = $("#query").text(),
+            // declare map variable
+            map = L.map('map', {
+                        zoomControl: false,
+                        center: [40, -100],
+                        zoom: 4,
+                        shareable: true
+                        });
+                        // add basemap
+                        L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CARTO</a>'}).addTo(map);
+                        // add cartodb layer
+                        cartodb.createLayer(map, {
+                                            user_name: 'noahbennett',
+                                            type: 'cartodb',
+                                            sublayers: [{
+                                                        sql: query,
+                                                        cartocss: style,
+                                                        }]
+                                            }).addTo(map)
+                                            .done(function(layer){
+                                                  
+                                                  
+                                                  
+                                                  // declare sublayer variable
+                                                  var subLayer = layer.getSubLayer(0);
+                                                  subLayer.setSQL(query);
+                                                  
+                                                  // On checkbox change, reset query
+                                                  var $options = $(".goo-collapsible").find("li form");
+                                                  $options.change(function(e) {
+                                                                  subLayer.setSQL(query);
+                                                                  });
+                                                  
+                                                  
+                                                  
+                                                  /*
+                                                   function createSelector(layer) {
+                                                   var condition = ""; // SQL or CartoCSS string
+                                                   var $options = $(".goo-collapsible").find("li");
+                                                   $options.click(function(e) {
+                                                   var $li = $(e.target);
+                                                   var selected = $li.data('attribute');
+                                                   var type = $li.data('type'); // 'sql' or 'cartocss'
+                                                   console.log(selected +" Selected\n "+ type + " Type")
+                                                   
+                                                   if (type === "cartocss") { // if a CartoCSS selector is chosen, set the style
+                                                   $options.removeClass('cartocss_selected');
+                                                   if (selected !== "simple") {
+                                                   $li.addClass('cartocss_selected');
+                                                   }
+                                                   
+                                                   condition = $('#'+selected).text();
+                                                   layer.setCartoCSS(condition);
+                                                   }
+                                                   else { // if a SQL selector is chosen, re-query the data
+                                                   $options.removeClass('sql_selected');
+                                                   if (selected !== "") {
+                                                   $li.addClass('sql_selected');
+                                                   }
+                                                   
+                                                   layer.setSQL("SELECT * FROM fullprojectsitedata_6_26_17");
+                                                   }
+                                                   });
+                                                   }
+                                                   
+                                                   
+                                                   
+                                                   */
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  });
+                                                  
+        }
+        window.onload = main;
+            </script>
+        
+    </body>
+</html>
